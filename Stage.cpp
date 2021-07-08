@@ -1,0 +1,67 @@
+#include "DxLib.h"
+#include "Input.h"
+#include "Stage.h"
+#include "SceneMgr.h"
+
+//画像
+static int mImageStage;
+static int mImageCursor;
+
+//カーソル
+static int MenuNumber = 0;
+
+//カーソル位置
+static int x = 0;
+
+//初期化
+void Stage_Initialize() {
+	mImageStage = LoadGraph("images/Stage.png");
+	mImageCursor = LoadGraph("images/cursol.png");
+}
+
+//終了処理
+void Stage_Finalize() {
+	DeleteGraph(mImageStage);
+	DeleteGraph(mImageCursor);
+}
+
+//更新
+void Stage_Update() {
+	if (iKeyFlg & PAD_INPUT_LEFT) {
+		if (++MenuNumber > 1) MenuNumber = 0;
+		if (x == 0) {
+			x = 230;
+		}
+		else {
+			x = 0;
+		}
+	}
+	if (iKeyFlg & PAD_INPUT_RIGHT) {
+		if (--MenuNumber < 0) MenuNumber = 1;
+		if (x == 230) {
+			x = 0;
+		}
+		else {
+			x = 230;
+		}
+	}
+	if (iKeyFlg == PAD_INPUT_10 || iKeyFlg == PAD_INPUT_1) { //Zキーが押されていたら
+		switch (MenuNumber) { //シーンによって処理を分岐
+		case 0: //現在の画面がメニューなら
+			SceneMgr_ChangeScene(eScene_Game); //四角形盤
+			break;
+		case 1:
+			SceneMgr_ChangeScene(eScene_Game2); //ひし形盤
+			break;
+		}
+	}
+	if (iKeyFlg == PAD_INPUT_B || iKeyFlg == PAD_INPUT_9/*CheckHitKey(KEY_INPUT_ESCAPE) != 0*/) {//Escキーが押されていたら
+		SceneMgr_ChangeScene(eScene_Mode);//シーンをメニューに変更
+	}
+}
+
+//描画
+void Stage_Draw() {
+	DrawGraph(0, 0, mImageStage, false);
+	DrawRotaGraph(30 + x, 372, 0.1f, 0, mImageCursor, true);
+}
